@@ -5,6 +5,12 @@
 
 #import <UIKit/UIKit.h>
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 30200
+#define KAL_IPAD_VERSION (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+#else
+#define KAL_IPAD_VERSION  (NO)
+#endif
+
 @class KalTileView, KalMonthView, KalLogic, KalDate;
 @protocol KalViewDelegate;
 
@@ -31,6 +37,8 @@
 
 @property (nonatomic, readonly) BOOL transitioning;
 @property (weak, nonatomic, readonly) KalDate *selectedDate;
+
++ (CGSize) tileSize;
 
 - (id)initWithFrame:(CGRect)frame logic:(KalLogic *)logic delegate:(id<KalViewDelegate>)delegate;
 - (void)selectDate:(KalDate *)date;
