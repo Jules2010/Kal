@@ -23,7 +23,7 @@ static const CGFloat kMonthLabelHeight = 17.f;
 -(CGFloat) headerHeight
 {
     if(KAL_IPAD_VERSION)
-        return 80.f;
+        return 65.f;
     return 44.f;
 }
 
