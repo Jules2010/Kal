@@ -110,7 +110,11 @@ static const CGFloat kMonthLabelHeight = 17.f;
     headerTitleLabel = [[UILabel alloc] initWithFrame:monthLabelFrame];
     headerTitleLabel.backgroundColor = [UIColor clearColor];
     headerTitleLabel.font = [UIFont boldSystemFontOfSize:22.f];
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 60000
+    headerTitleLabel.textAlignment = NSTextAlignmentCenter;
+#else
     headerTitleLabel.textAlignment = UITextAlignmentCenter;
+#endif
     headerTitleLabel.textColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"Kal.bundle/kal_header_text_fill.png"]];
     headerTitleLabel.shadowColor = [UIColor whiteColor];
     headerTitleLabel.shadowOffset = CGSizeMake(0.f, 1.f);
@@ -216,8 +220,12 @@ static const CGFloat kMonthLabelHeight = 17.f;
 - (void)setHeaderTitleText:(NSString *)text
 {
     [headerTitleLabel setText:text];
-    [headerTitleLabel sizeToFit];
-    headerTitleLabel.left = floorf(self.width/2.f - headerTitleLabel.width/2.f);
+    [headerTitleLabel sizeToFit]; //fit height
+    CGRect frame = headerTitleLabel.frame;
+    CGFloat smallestSide = self.frame.size.width > self.frame.size.height ? self.frame.size.height : self.frame.size.width;
+    frame.size.width = smallestSide;
+    frame.origin.x = 0;
+    headerTitleLabel.frame = frame;
 }
 
 - (void)jumpToSelectedMonth { [gridView jumpToSelectedMonth]; }
