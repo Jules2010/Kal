@@ -243,6 +243,7 @@ static const CGFloat kMonthLabelHeight = 17.f;
     [logic removeObserver:self forKeyPath:@"selectedMonthNameAndYear"];
     
     [gridView removeObserver:self forKeyPath:@"frame"];
+    [super dealloc];
 }
 
 @end
