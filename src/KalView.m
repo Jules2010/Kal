@@ -139,20 +139,24 @@ static const CGFloat kMonthLabelHeight = 17.f;
 //    NSArray *fullWeekdayNames = [[[NSDateFormatter alloc] init] standaloneWeekdaySymbols];
     NSUInteger firstWeekday = [[NSCalendar currentCalendar] firstWeekday];
     NSUInteger i = firstWeekday - 1;
-    CGSize tileSize = [KalGridView  tileSize];
+    CGSize tileSize = [KalGridView tileSize];
     CGFloat columnWidth = tileSize.width;
     CGFloat fontSize = KAL_IPAD_VERSION ? 20.f : 10.f;
     const CGFloat kHeaderHeight = [self headerHeight];
+    
+    NSInteger dayCount = 0;
     for (CGFloat xOffset = 0.f; xOffset < headerView.width; xOffset += columnWidth, i = (i+1)%7) {
+        
+        // Show only 1 week columns
+        dayCount++;
+        if (dayCount > 7)
+            break;
+        
         CGRect weekdayFrame = CGRectMake(xOffset, 30.f, columnWidth, kHeaderHeight - 29.f);
         UILabel *weekdayLabel = [[UILabel alloc] initWithFrame:weekdayFrame];
         weekdayLabel.backgroundColor = [UIColor clearColor];
         weekdayLabel.font = [UIFont boldSystemFontOfSize:fontSize];
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 60000
-        weekdayLabel.textAlignment = NSTextAlignmentCenter;
-#else
         weekdayLabel.textAlignment = UITextAlignmentCenter;
-#endif
         weekdayLabel.textColor = [UIColor colorWithRed:0.3f green:0.3f blue:0.3f alpha:1.f];
         weekdayLabel.shadowColor = [UIColor whiteColor];
         weekdayLabel.shadowOffset = CGSizeMake(0.f, 1.f);
