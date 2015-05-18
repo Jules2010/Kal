@@ -30,9 +30,12 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
 @synthesize selectedTile, highlightedTile, transitioning;
 
 + (CGSize) tileSize {
+    CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
     if (KAL_IPAD_VERSION)
-        return CGSizeMake(110.f, 82.f);
-    return CGSizeMake(46.0f, 44.0f);
+        //        return CGSizeMake(110.f, 82.f);
+        return CGSizeMake(screenWidth/7, 82.f);
+    //    return CGSizeMake(46.0f, 44.0f);
+    return CGSizeMake(screenWidth/7, 44.0f);
 }
 
 - (id)initWithFrame:(CGRect)frame logic:(KalLogic *)theLogic delegate:(id<KalViewDelegate>)theDelegate
