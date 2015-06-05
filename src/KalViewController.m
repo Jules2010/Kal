@@ -220,6 +220,11 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
   [tableView flashScrollIndicators];
 }
 
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    [self loadView];
+}
+
 #pragma mark -
 
 - (void)dealloc
