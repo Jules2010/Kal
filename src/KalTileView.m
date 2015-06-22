@@ -31,63 +31,43 @@
     CGSize tileSize = [KalGridView tileSize];
     
     CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGFloat fontSize = 24.f;
-    UIFont *font = [UIFont boldSystemFontOfSize:fontSize];
-    UIColor *shadowColor = nil;
+    UIFont *font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
     UIColor *textColor = nil;
-    UIImage *markerImage = nil;
-    CGContextSelectFont(ctx, [font.fontName cStringUsingEncoding:NSUTF8StringEncoding], fontSize, kCGEncodingMacRoman);
-    
+    CGContextSelectFont(ctx, [font.fontName cStringUsingEncoding:NSUTF8StringEncoding], font.pointSize, kCGEncodingMacRoman);
     CGContextTranslateCTM(ctx, 0, tileSize.height);
     CGContextScaleCTM(ctx, 1, -1);
     
     if ([self isToday] && self.selected) {
-        [[[UIImage imageNamed:@"Kal.bundle/kal_tile_today_selected.png"] stretchableImageWithLeftCapWidth:6 topCapHeight:0] drawInRect:CGRectMake(0, -1, tileSize.width+1, tileSize.height+1)];
+        [self.tintColor setFill];
+        UIRectFill(rect);
         textColor = [UIColor whiteColor];
-        shadowColor = [UIColor blackColor];
-        markerImage = [UIImage imageNamed:@"Kal.bundle/kal_marker_today.png"];
     } else if ([self isToday] && !self.selected) {
-        [[[UIImage imageNamed:@"Kal.bundle/kal_tile_today.png"] stretchableImageWithLeftCapWidth:6 topCapHeight:0] drawInRect:CGRectMake(0, -1, tileSize.width+1, tileSize.height+1)];
-        textColor = [UIColor whiteColor];
-        shadowColor = [UIColor blackColor];
-        markerImage = [UIImage imageNamed:@"Kal.bundle/kal_marker_today.png"];
+        textColor = self.tintColor;
     } else if (self.selected) {
-        [[[UIImage imageNamed:@"Kal.bundle/kal_tile_selected.png"] stretchableImageWithLeftCapWidth:1 topCapHeight:0] drawInRect:CGRectMake(0, -1, tileSize.width+1, tileSize.height+1)];
+        [self.tintColor setFill];
+        UIRectFill(rect);
         textColor = [UIColor whiteColor];
-        shadowColor = [UIColor blackColor];
-        markerImage = [UIImage imageNamed:@"Kal.bundle/kal_marker_selected.png"];
     } else if (self.belongsToAdjacentMonth) {
-        textColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"Kal.bundle/kal_tile_dim_text_fill.png"]];
-        shadowColor = nil;
-        markerImage = [UIImage imageNamed:@"Kal.bundle/kal_marker_dim.png"];
+        textColor = [UIColor lightGrayColor];
     } else {
-        textColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"Kal.bundle/kal_tile_text_fill.png"]];
-        shadowColor = [UIColor whiteColor];
-        markerImage = [UIImage imageNamed:@"Kal.bundle/kal_marker.png"];
+        textColor = [UIColor blackColor];
     }
     
-    if (flags.marked)
-        [markerImage drawInRect:CGRectMake(21.f, 5.f, 4.f, 5.f)];
+    if (flags.marked) {
+        CGContextAddEllipseInRect(ctx, CGRectMake((rect.size.width / 2) - 2.5, (rect.origin.y + rect.size.height / 5) - 2.5, 5, 5));
+        CGContextSetFillColorWithColor(ctx, [UIColor lightGrayColor].CGColor);
+        CGContextEOFillPath(ctx);
+    }
     
     NSUInteger n = [self.date day];
     NSString *dayText = [NSString stringWithFormat:@"%lu", (unsigned long)n];
     const char *day = [dayText cStringUsingEncoding:NSUTF8StringEncoding];
     CGSize textSize = [dayText sizeWithFont:font];
     CGFloat textX, textY;
-    textX = roundf(0.5f * (tileSize.width - textSize.width));
+    textX = roundf((tileSize.width / 2) - (textSize.width / 2));
     textY = 6.f + roundf(0.5f * (tileSize.height - textSize.height));
-    if (shadowColor) {
-        [shadowColor setFill];
-        CGContextShowTextAtPoint(ctx, textX, textY, day, n >= 10 ? 2 : 1);
-        textY += 1.f;
-    }
     [textColor setFill];
     CGContextShowTextAtPoint(ctx, textX, textY, day, n >= 10 ? 2 : 1);
-    
-    if (self.highlighted) {
-        [[UIColor colorWithWhite:0.25f alpha:0.3f] setFill];
-        CGContextFillRect(ctx, CGRectMake(0.f, 0.f, tileSize.width, tileSize.height));
-    }
 }
 
 - (void)resetState

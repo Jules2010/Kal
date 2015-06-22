@@ -33,6 +33,7 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
 @interface KalViewController ()
 @property (nonatomic, strong, readwrite) NSDate *initialDate;
 @property (nonatomic, strong, readwrite) NSDate *selectedDate;
+@property (nonatomic, strong, readwrite) NSDate *selectedDatePreRotation;
 - (KalView*)calendarView;
 @end
 
@@ -198,7 +199,12 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
   tableView = kalView.tableView;
   tableView.dataSource = dataSource;
   tableView.delegate = delegate;
-  [kalView selectDate:[KalDate dateFromNSDate:self.initialDate]];
+  if (self.selectedDatePreRotation) {
+      [kalView selectDate:[KalDate dateFromNSDate:self.selectedDatePreRotation]];
+      self.selectedDatePreRotation = nil;
+  } else {
+      [kalView selectDate:[KalDate dateFromNSDate:self.initialDate]];
+  }
   [self reloadData];
 }
 
@@ -222,6 +228,7 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
 
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
+    self.selectedDatePreRotation = self.selectedDate;
     [self loadView];
 }
 
