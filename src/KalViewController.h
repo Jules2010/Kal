@@ -24,8 +24,8 @@
 {
   KalLogic *logic;
   UITableView *tableView;
-  id <UITableViewDelegate> __weak delegate;
-  id <KalDataSource> __weak dataSource;
+  id <UITableViewDelegate> delegate;
+  id <KalDataSource> dataSource;
   NSDate *initialDate;                    // The date that the calendar was initialized with *or* the currently selected date when the view hierarchy was torn down in order to satisfy a low memory warning.
   NSDate *selectedDate;                   // I cache the selected date because when we respond to a memory warning, we cannot rely on the view hierarchy still being alive, and thus we cannot always derive the selected date from KalView's selectedDate property.
 }

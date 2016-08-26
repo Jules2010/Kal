@@ -43,7 +43,7 @@
   KalGridView *gridView;
   UITableView *tableView;
   UIImageView *shadowView;
-  id<KalViewDelegate> __weak delegate;
+  id<KalViewDelegate> delegate;
   KalLogic *logic;
 }
 

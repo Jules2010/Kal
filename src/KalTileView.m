@@ -33,9 +33,7 @@
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     UIFont *font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
     UIColor *textColor = nil;
-    CGContextSelectFont(ctx, [font.fontName cStringUsingEncoding:NSUTF8StringEncoding], font.pointSize, kCGEncodingMacRoman);
-    CGContextTranslateCTM(ctx, 0, tileSize.height);
-    CGContextScaleCTM(ctx, 1, -1);
+    CGContextSetTextDrawingMode(ctx, kCGTextFill);
     
     if ([self isToday] && self.selected) {
         [self.tintColor setFill];
@@ -61,13 +59,12 @@
     
     NSUInteger n = [self.date day];
     NSString *dayText = [NSString stringWithFormat:@"%lu", (unsigned long)n];
-    const char *day = [dayText cStringUsingEncoding:NSUTF8StringEncoding];
-    CGSize textSize = [dayText sizeWithFont:font];
+    CGSize textSize = [dayText sizeWithAttributes:@{NSFontAttributeName: [UIFont systemFontOfSize:17.0f]}];
     CGFloat textX, textY;
     textX = roundf((tileSize.width / 2) - (textSize.width / 2));
     textY = 6.f + roundf(0.5f * (tileSize.height - textSize.height));
     [textColor setFill];
-    CGContextShowTextAtPoint(ctx, textX, textY, day, n >= 10 ? 2 : 1);
+    [dayText drawAtPoint:CGPointMake(textX, textY) withAttributes:@{NSFontAttributeName:[UIFont fontWithName:font.fontName size:17.0f]}];
 }
 
 - (void)resetState
