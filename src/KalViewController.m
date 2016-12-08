@@ -31,8 +31,9 @@ void mach_absolute_difference(uint64_t end, uint64_t start, struct timespec *tp)
 NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotification";
 
 @interface KalViewController ()
-@property (nonatomic, retain, readwrite) NSDate *initialDate;
-@property (nonatomic, retain, readwrite) NSDate *selectedDate;
+@property (nonatomic, strong, readwrite) NSDate *initialDate;
+@property (nonatomic, strong, readwrite) NSDate *selectedDate;
+@property (nonatomic, strong, readwrite) NSDate *selectedDatePreRotation;
 - (KalView*)calendarView;
 @end
 
@@ -40,21 +41,31 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
 
 @synthesize dataSource, delegate, initialDate, selectedDate;
 
-- (id)initWithSelectedDate:(NSDate *)date
+- (void) setDefaultsWithSelectedDate:(NSDate*)date
 {
-  if ((self = [super init])) {
     logic = [[KalLogic alloc] initForDate:date];
     self.initialDate = date;
     self.selectedDate = date;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(significantTimeChangeOccurred) name:UIApplicationSignificantTimeChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadData) name:KalDataSourceChangedNotification object:nil];
-  }
-  return self;
 }
 
-- (id)init
-{
-  return [self initWithSelectedDate:[NSDate date]];
+- (id)init {
+    if ((self = [super init]))
+        [self setDefaultsWithSelectedDate:[NSDate date]];
+    return self;
+}
+
+- (id) initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder])
+        [self setDefaultsWithSelectedDate:[NSDate date]];
+    return self;
+}
+
+- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])
+        [self setDefaultsWithSelectedDate:[NSDate date]];
+    return self;
 }
 
 - (KalView*)calendarView { return (KalView*)self.view; }
@@ -128,7 +139,7 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
 - (void)loadedDataSource:(id<KalDataSource>)theDataSource;
 {
   NSArray *markedDates = [theDataSource markedDatesFrom:logic.fromDate to:logic.toDate];
-  NSMutableArray *dates = [[markedDates mutableCopy] autorelease];
+  NSMutableArray *dates = [markedDates mutableCopy];
   for (int i=0; i<[dates count]; i++)
     [dates replaceObjectAtIndex:i withObject:[KalDate dateFromNSDate:[dates objectAtIndex:i]]];
   
@@ -183,20 +194,23 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
 {
   if (!self.title)
     self.title = @"Calendar";
-  KalView *kalView = [[[KalView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame] delegate:self logic:logic] autorelease];
+  KalView *kalView = [[KalView alloc] initWithFrame:[[UIScreen mainScreen] bounds] delegate:self logic:logic];
   self.view = kalView;
   tableView = kalView.tableView;
   tableView.dataSource = dataSource;
   tableView.delegate = delegate;
-  [tableView retain];
-  [kalView selectDate:[KalDate dateFromNSDate:self.initialDate]];
+  if (self.selectedDatePreRotation) {
+      [kalView selectDate:[KalDate dateFromNSDate:self.selectedDatePreRotation]];
+      self.selectedDatePreRotation = nil;
+  } else {
+      [kalView selectDate:[KalDate dateFromNSDate:self.initialDate]];
+  }
   [self reloadData];
 }
 
 - (void)viewDidUnload
 {
   [super viewDidUnload];
-  [tableView release];
   tableView = nil;
 }
 
@@ -212,17 +226,19 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
   [tableView flashScrollIndicators];
 }
 
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    self.selectedDatePreRotation = self.selectedDate;
+    [self loadView];
+}
+
 #pragma mark -
 
 - (void)dealloc
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationSignificantTimeChangeNotification object:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self name:KalDataSourceChangedNotification object:nil];
-  [initialDate release];
-  [selectedDate release];
-  [logic release];
-  [tableView release];
-  [super dealloc];
+    [super dealloc];
 }
 
 @end
